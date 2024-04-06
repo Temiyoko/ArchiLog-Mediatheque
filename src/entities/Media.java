@@ -5,13 +5,6 @@ public abstract class Media implements Document {
     private String titre;
     private Abonne emprunteur;
     private Abonne reserveur;
-
-    public Media(int numero, String titre) {
-        this.numero = numero;
-        this.titre = titre;
-        this.emprunteur = null;
-        this.reserveur = null;
-    }
     
     public Media(int numero, String titre, Abonne emp, Abonne res) {
         this.numero = numero;
@@ -26,43 +19,58 @@ public abstract class Media implements Document {
     }
 
     @Override
-    public Abonne emprunteur() {
+    public synchronized Abonne emprunteur() {
     	// return null si pas emprunté
         return emprunteur; // Abonné qui a emprunté ce document 
     }
 
     @Override
-    public Abonne reserveur() {
+    public synchronized Abonne reserveur() {
     	// return null si pas réservé 
         return reserveur; // Abonné qui a réservé ce document 
     }
 
     @Override
     public void reservationPour(Abonne ab) throws EmpruntException {
-    	// precondition : ni réservé ni emprunté 
-        assert reserveur != null;
-        
-        if(emprunteur != null) {
-        	System.out.println("Ce media est déjà emprunté");
-        	return;
+    	// precondition : ni réservé ni emprunté
+        if (emprunteur() != null) {
+            throw new EmpruntException("Le " + getClassName() + " est déjà emprunté.");
         }
-        
-        this.reserveur = ab;
+        if (reserveur() != null) {
+            throw new EmpruntException("Le " + getClassName() + " est déjà réservé.");
+        }
+        reserveur = ab;
     }
 
     @Override
-    public void empruntPar(Abonne ab) throws EmpruntException {
+    public synchronized void empruntPar(Abonne ab) throws EmpruntException {
     	// precondition : libre ou réservé par l’abonné qui vient emprunter 
-        assert emprunteur != null && (reserveur == null || reserveur.equals(ab));
-        
-        this.emprunteur = ab;
-        this.reserveur = null;
+        if (emprunteur() != null) {
+            throw new EmpruntException("Le " + getClassName() + " est déjà emprunté.");
+        }
+        if (reserveur() != null && !reserveur.equals(ab)) {
+            throw new EmpruntException("Le " + getClassName() + " est réservé par un autre abonné.");
+        }
+        emprunteur = ab;
+        reserveur = null;
     }
 
     @Override
-    public void retour() {
+    public synchronized void retour() {
     	// retour d’un document ou annulation d‘une réservation 
         this.emprunteur = null;
         this.reserveur = null;
     }
+
+    @Override
+    public String toString() {
+        return getClassName() + "{" +
+                "numero=" + numero +
+                ", titre='" + titre + '\'' +
+                ", emprunteur=" + emprunteur +
+                ", reserveur=" + reserveur +
+                '}';
+    }
+
+    public abstract String getClassName();
 }

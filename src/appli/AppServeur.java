@@ -18,7 +18,7 @@ import serveur.Serveur;
 import services.ServiceEmpruntRetour;
 import services.ServiceReservation;
 
-public class Application {
+public class AppServeur {
 	private static List<Abonne> abonnes;
 	private static List<Document> documents;
 	
@@ -28,7 +28,7 @@ public class Application {
 
 	public static void main(String[] args) {
 		chargerDB();
-		
+
 		for(Abonne ab : abonnes) {
 			System.out.println(ab);
 		}
@@ -36,7 +36,9 @@ public class Application {
 		for(Document doc : documents) {
 			System.out.println(doc);
 		}
-		
+
+		ServiceReservation.init(abonnes, documents);
+
 		try {
 			new Thread(new Serveur(ServiceReservation.class, 3000)).start();
 			new Thread(new Serveur(ServiceEmpruntRetour.class, 4000)).start();
@@ -50,8 +52,7 @@ public class Application {
 			Class.forName("com.mysql.jdbc.Driver");
 		} 
 		catch (ClassNotFoundException e1) {
-			System.err.print("ClassNotFoundException: ");
-			System.err.println(e1.getMessage());
+			System.err.print("ClassNotFoundException: " + e1.getMessage());
 		}
 		try {
 			// Open connection
@@ -81,10 +82,10 @@ public class Application {
                 int numero = resultSetDoc.getInt("Numero");
                 String titre = resultSetDoc.getString("Titre");
                 String typeDocument = resultSetDoc.getString("TypeDocument");
-                Integer nombreDePages = resultSetDoc.getInt("NombreDePages");
-                Boolean adulte = resultSetDoc.getBoolean("Adulte");
-                Integer numeroEmprunteur = resultSetDoc.getInt("NumeroEmprunteur");
-                Integer numeroReserveur = resultSetDoc.getInt("NumeroReserveur");
+                int nombreDePages = resultSetDoc.getInt("NombreDePages");
+                boolean adulte = resultSetDoc.getBoolean("Adulte");
+                int numeroEmprunteur = resultSetDoc.getInt("NumeroEmprunteur");
+                int numeroReserveur = resultSetDoc.getInt("NumeroReserveur");
                 
                 Abonne abonneE = null, abonneR = null;
                 for (Abonne a : abonnes) {

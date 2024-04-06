@@ -15,16 +15,12 @@ public class Abonne {
 		this.dateNaiss = naissance;
 	}
 	
-	public void reserver(Document doc) {
-		try {
-			doc.reservationPour(this);
-		} catch (EmpruntException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public int getNumero() {
 		return numero;
+	}
+
+	public String getNom() {
+		return nom;
 	}
 	
 	public int getAge() {
